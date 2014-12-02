@@ -1,0 +1,40 @@
+﻿@inherits ServiceStack.Razor.ViewPage
+@{
+    ViewBag.Title = "Server Sent Events Chat";
+    var channel = Request.QueryString["channel"] ?? "home";
+}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <!--<base href="/" />-->
+    <!--build:css css/style.min.css-->
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- endbuild -->
+    <!-- build:js lib/js/jquery.min.js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <!-- endbuild -->
+    <!-- build:js lib/js/react.min.js -->
+    <script src="bower_components/react/react.js"></script>
+    <!-- endbuild -->
+    <!-- build:remove -->
+    <script src="bower_components/react/JSXTransformer.js"></script>
+    <!-- endbuild -->
+    <title>Chat-React</title>
+    
+    <script type="text/javascript">
+        var AppData = {
+            channel: "@channel",
+            isAuthenticated: @IsAuthenticated.ToString().ToLower()
+        };
+    </script>
+</head>
+    <body>
+        
+        <div id="app"></div>
+
+        <!-- build:js js/app.jsx.js -->
+        <script type="text/jsx" src="js/components/ChatApp.jsx"></script>
+        <!-- endbuild -->
+    </body>
+</html>
