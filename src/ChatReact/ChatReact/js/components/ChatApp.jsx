@@ -3,7 +3,6 @@
 var ChatApp = React.createClass({
 	mixins:[ 
 		Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 
-		Reflux.listenTo(HistoryStore,"onHistoryUpdate"),
 		Reflux.listenTo(UsersStore,"onUsersUpdate")
 	],
 	templates: {
@@ -24,7 +23,6 @@ var ChatApp = React.createClass({
 			isAuthenticated: this.props.isAuthenticated, 
 			tvUrl: null,
 			messages: [], 
-			history: [], 
 			users: [],
 			announce: '',
 			activeSub: null
@@ -87,9 +85,6 @@ var ChatApp = React.createClass({
 			$($this.refs.chatLog.refs.log.getDOMNode()).scrollTop(1E10);
 		});
 	},
-	onHistoryUpdate: function(history) {
-		this.setState({ history: history });
-	},
 	onUsersUpdate: function(users) {
 		this.setState({ users: users });
 	},
@@ -142,6 +137,7 @@ var ChatApp = React.createClass({
 						 activeSub={this.state.activeSub} />
 
 				<Footer channel={this.props.channel} 
+						users={this.state.users} 
 						activeSub={this.state.activeSub} />
 			</div>
 		);

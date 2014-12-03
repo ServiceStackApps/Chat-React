@@ -8,8 +8,7 @@ var Actions = Reflux.createActions([
     "logError",
     "announce",
     "setText",
-    "toggleExamples",
-	"_"
+    "toggleExamples"
 ]);
 
 var MessagesStore = Reflux.createStore({
@@ -34,7 +33,7 @@ var MessagesStore = Reflux.createStore({
 	    		userId: m.fromUserId,
 	    		userName: m.fromName,
 	    		msg: m.message,
-	    		cls: m.private ? ' private' : ''
+	    		cls: m.cls || (m.private ? ' private' : '')
 	    	});
 	    });
 		this.trigger(this.messages);
@@ -42,17 +41,6 @@ var MessagesStore = Reflux.createStore({
 	removeAllMessages: function () {
 		this.messages = [];
 		this.trigger(this.messages);
-	}
-});
-
-var HistoryStore = Reflux.createStore({
-	init: function () {
-		this.listenToMany(Actions);
-		this.history = [];
-	},
-	recordMessage: function (message) {
-		this.history.push(message);
-		this.trigger(this.history);
 	}
 });
 
