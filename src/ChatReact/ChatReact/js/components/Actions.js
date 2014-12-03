@@ -12,9 +12,9 @@ var Actions = Reflux.createActions([
 ]);
 
 var MessagesStore = Reflux.createStore({
-	init: function() {
+	init: function () {
 		this.listenToMany(Actions);
-	    this.anonMsgId = -1;
+		this.anonMsgId = -1;
 		this.messages = [];
 	},
 	didConnect: function () {
@@ -26,16 +26,16 @@ var MessagesStore = Reflux.createStore({
 		this.trigger(this.messages);
 	},
 	addMessages: function (msgs) {
-	    var $this = this;
-	    msgs.forEach(function(m) {
-	    	$this.messages.push({
-	    		id: m.id || $this.anonMsgId--,
-	    		userId: m.fromUserId,
-	    		userName: m.fromName,
-	    		msg: m.message,
-	    		cls: m.cls || (m.private ? ' private' : '')
-	    	});
-	    });
+		var $this = this;
+		msgs.forEach(function (m) {
+			$this.messages.push({
+				id: m.id || $this.anonMsgId--,
+				userId: m.fromUserId,
+				userName: m.fromName,
+				msg: m.message,
+				cls: m.cls || (m.private ? ' private' : '')
+			});
+		});
 		this.trigger(this.messages);
 	},
 	removeAllMessages: function () {
@@ -61,7 +61,7 @@ $(document).bindHandlers({
 		$(this).toggle();
 	},
 	sendCommand: function () {
-	    if (this.tagName != 'DIV') return;
+		if (this.tagName != 'DIV') return;
 		Actions.setText($(this).html());
 	},
 	privateMsg: function () {
