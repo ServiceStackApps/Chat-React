@@ -8,7 +8,8 @@
     "private": true,
     "dependencies": {
         "react": "~0.12.1",
-		"jquery": "~2.1.1"
+		"jquery": "~2.1.1",
+		"reflux": "~0.2.0"
     },
     "ignore": [
         "**/.*",

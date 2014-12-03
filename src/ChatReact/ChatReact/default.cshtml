@@ -17,9 +17,15 @@
     <!-- build:js lib/js/react.min.js -->
     <script src="bower_components/react/react.js"></script>
     <!-- endbuild -->
+    <!-- build:js lib/js/reflux.min.js -->
+    <script src="bower_components/reflux/dist/reflux.js"></script>
+    <!-- endbuild -->
     <!-- build:remove -->
     <script src="bower_components/react/JSXTransformer.js"></script>
     <!-- endbuild -->
+
+    <script src="js/ss-utils.js"></script>
+
     <title>Chat-React</title>
     
     <script type="text/javascript">
@@ -34,6 +40,12 @@
         <div id="app"></div>
 
         <!-- build:js js/app.jsx.js -->
+        <script type="text/jsx" src="js/components/Actions.js"></script>
+        <script type="text/jsx" src="js/components/User.jsx"></script>
+        <script type="text/jsx" src="js/components/Header.jsx"></script>
+        <script type="text/jsx" src="js/components/Sidebar.jsx"></script>
+        <script type="text/jsx" src="js/components/ChatLog.jsx"></script>
+        <script type="text/jsx" src="js/components/Footer.jsx"></script>
         <script type="text/jsx" src="js/components/ChatApp.jsx"></script>
         <!-- endbuild -->
     </body>
