@@ -39,7 +39,7 @@ var Header = React.createClass({
 					</li>
 					<li style={{background: 'none', padding: '0 0 0 5px'}}>
 						<button onClick={this.openChannel}>+</button>
-						<span style={{fontSize: '13px', color: '#ccc'}} onClick={Actions.removeAllMessages}>clear</span>
+						<span style={{fontSize: 13, color: '#ccc', paddingLeft: 10}} onClick={Actions.removeAllMessages}>clear</span>
 					</li>
 				</ul>
 			</div>

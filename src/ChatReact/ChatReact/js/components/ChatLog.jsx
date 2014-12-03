@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 var ChatLog = React.createClass({
-	renderItem: function(o) {
+	renderItem: function(o, i, msgs) {
 		var user = this.props.users.filter(function(user) { 
 			return user.id == o.userId;
 		})[0];
@@ -16,11 +16,12 @@ var ChatLog = React.createClass({
 		var msgId = "m_" + (o.id || "0");
 		var clsMsg = 'msg ' + clsHighlight + o.cls;
 
-		var skipUser = this.props.messages[this.props.messages.length -1].userId == o.userId;
+		var lastMsg = i > 0 && msgs[i -1],
+		    repeatingUser = lastMsg.userId == o.userId;
 
 		return (
 			<div key={msgId} id={msgId} className={clsMsg}>
-				{o.userId && !skipUser 
+				{o.userId && !repeatingUser 
 					? <b className={clsUser}>
 						<User user={ user || $.extend(o, { displayName: o.userName }) } />
 					  </b> 
@@ -32,7 +33,7 @@ var ChatLog = React.createClass({
 	},
 	render: function() {
 		return (
-			<div id="log">
+			<div ref="log" id="log">
 				{this.props.messages.map(this.renderItem)}
 			</div>
 		);

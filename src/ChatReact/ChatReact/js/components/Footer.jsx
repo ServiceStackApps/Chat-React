@@ -1,9 +1,13 @@
 /** @jsx React.DOM */
 
 var Footer = React.createClass({
+	mixins:[ Reflux.listenToMany(Actions) ],
 	getInitialState: function () {
 		return {value:''};
 	},	
+	componentDidMount: function() {
+		this.refs.txtMsg.getDOMNode().focus();
+	},
 	postMsg: function(){
 		var txtMsg = this.refs.txtMsg.getDOMNode();
         var msg = txtMsg.value, 
@@ -31,8 +35,6 @@ var Footer = React.createClass({
                 Actions.showError(e.responseJSON.responseStatus.message);
         };
 
-		console.log('post /chat', msg);
-
         if (msg[0] == "/") {
             parts = $.ss.splitOnFirst(msg, " ");
             $.post("/channels/" + this.props.channel + "/raw", { 
@@ -56,6 +58,12 @@ var Footer = React.createClass({
 
         this.setState({ value: '' });
 	},
+	setText: function(txt) {
+		var txtMsg = this.refs.txtMsg.getDOMNode();
+		this.setState({ value: txt }, function(){
+			txtMsg.focus();
+		});
+	},
 	handleChange: function(e) {
 		this.setState({ value: e.target.value });
 	},
@@ -72,7 +80,7 @@ var Footer = React.createClass({
 					   value={this.state.value}
 					   onChange={this.handleChange}
 					   onKeyDown={this.handleKeyDown} />
-				<button id="btnSend" onClick={this.postMsg}>Send</button>
+				<button id="btnSend" style={{marginLeft: 5}} onClick={this.postMsg}>Send</button>
 			</div>
 		);
 	}

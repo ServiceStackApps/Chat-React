@@ -1,11 +1,5 @@
 /** @jsx React.DOM */
 
-var source = new EventSource('/event-stream?channel=' + AppData.channel + '&t=' + new Date().getTime()); //disable cache
-source.onerror = function (e) {
-	console.log(e);
-	Actions.logError(e);
-};
-
 var ChatApp = React.createClass({
 	mixins:[ 
 		Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 
@@ -13,14 +7,40 @@ var ChatApp = React.createClass({
 		Reflux.listenTo(UsersStore,"onUsersUpdate")
 	],
 	templates: {
-		youtube: '<iframe width="640" height="360" src="//www.youtube.com/embed/{id}?autoplay=1" frameborder="0" allowfullscreen></iframe>',
-		generic: '<iframe width="640" height="360" src="{id}" frameborder="0"></iframe>'
+		youtube: function(id) {
+			var url = '//www.youtube.com/embed/' + id + '?autoplay=1';
+			return (
+				<iframe width="640" height="360" src={url} frameBorder="0" allowFullScreen></iframe>
+			);
+		},
+		generic: function(url) {
+			return (
+				<iframe width="640" height="360" src={url} frameBorder="0"></iframe>
+			);
+		}
 	},
+	getInitialState: function () {
+		return {
+			isAuthenticated: this.props.isAuthenticated, 
+			tvUrl: null,
+			messages: [], 
+			history: [], 
+			users: [],
+			announce: '',
+			activeSub: null
+		};
+	},	
 	componentDidMount: function() {
 		var $this = this;
 
+		this.listenToMany(Actions);
+
+		this.source = new EventSource('/event-stream?channel=' + this.props.channel + '&t=' + new Date().getTime()); //disable cache
+		this.source.onerror = function (e) {
+			Actions.logError(e);
+		};
 		$.ss.eventReceivers = { "document": document };
-		$(source).handleServerEvents({
+		$(this.source).handleServerEvents({
 			handlers: {
 				onConnect: function (u) {
 					$this.setState({ activeSub: u });
@@ -39,41 +59,17 @@ var ChatApp = React.createClass({
 				onJoin: this.refreshUsers,
 				onLeave: this.refreshUsers,
 				chat: function (m, e) {
-					console.log('chat', m);
 					Actions.addMessages([m]);
 				}
 			},
 			receivers: {
 				tv: {
-					watch: function (id) {
-						if (id.indexOf('youtube.com') >= 0) {
-							var qs = $.ss.queryString(id);
-							$("#tv").html(templates.youtube.replace("{id}", qs["v"])).show();
-						}
-						else if (id.indexOf('youtu.be') >= 0) {
-							var v = $.ss.splitOnLast(id, '/')[1];
-							$("#tv").html(templates.youtube.replace("{id}", v)).show();
-						} else {
-							$("#tv").html(templates.generic.replace("{id}", id)).show();
-						}
-					},
-					off: function () {
-						$("#tv").hide().html("");
-					}
+					watch: this.tvOn,
+					off: this.tvOff
 				}
 			}
 		});
 	},
-	getInitialState: function () {
-		return {
-			isAuthenticated: this.props.isAuthenticated, 
-			messages: [], 
-			history: [], 
-			users: [],
-			announce: '',
-			activeSub: null
-		};
-	},	
     refreshUsers: function() {
         $.getJSON("/event-subscribers?channel=" + this.props.channel, function (users) {
             usersMap = {};
@@ -86,7 +82,10 @@ var ChatApp = React.createClass({
         });
     },
 	onMessagesUpdate: function(messages) {
-		this.setState({ messages: messages });
+		var $this = this;
+		this.setState({ messages: messages }, function(){
+			$($this.refs.chatLog.refs.log.getDOMNode()).scrollTop(1E10);
+		});
 	},
 	onHistoryUpdate: function(history) {
 		this.setState({ history: history });
@@ -98,33 +97,52 @@ var ChatApp = React.createClass({
 		this.announce(errorMsg);
 	},
 	announce: function(msg) {
-		var $el = $(this.refs.announce.getDOMNod());
+		var $this = this,
+		    $el = $(this.refs.announce.getDOMNode());
+
 		this.setState({ announce: msg }, function() {
 			$el.fadeIn('fast');
 		});
 
 		setTimeout(function() { 
 			$el.fadeOut('slow');
-			this.setState({ announce: '' });
-		});
+			$this.setState({ announce: '' });
+		}, 2000);
+	},
+	tvOn: function(id) {
+		if (id.indexOf('youtube.com') >= 0) {
+			var qs = $.ss.queryString(id);
+			this.setState({ tvUrl: this.templates.youtube(qs["v"]) });
+		}
+		else if (id.indexOf('youtu.be') >= 0) {
+			var v = $.ss.splitOnLast(id, '/')[1];
+			this.setState({ tvUrl: this.templates.youtube(v) });
+		} else {
+			this.setState({ tvUrl: this.templates.generic(id) });
+		}
+	},
+	tvOff: function() {
+		this.setState({ tvUrl: null });
 	},
 	render: function() {
+		var showTv = this.state.tvUrl ? 'block' : 'none';
 		return (
 			<div>
 				<Header channel={this.props.channel} 
 						isAuthenticated={this.props.isAuthenticated} 
 						activeSub={this.state.activeSub} />
 
-				<div ref="announce" id="announce"></div>
-				<div id="tv"></div>
+				<div ref="announce" id="announce">{this.state.announce}</div>
+				<div ref="tv" id="tv" style={{display: showTv}}>{this.state.tvUrl}</div>
 				<Sidebar users={this.state.users} />
 
-				<ChatLog messages={this.state.messages} 
+				<ChatLog ref="chatLog"
+				         messages={this.state.messages} 
 						 users={this.state.users} 
 						 activeSub={this.state.activeSub} />
 
 				<Footer channel={this.props.channel} 
-						 activeSub={this.state.activeSub} />
+						activeSub={this.state.activeSub} />
 			</div>
 		);
 	}

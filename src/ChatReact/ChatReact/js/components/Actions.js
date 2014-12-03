@@ -6,12 +6,16 @@ var Actions = Reflux.createActions([
     "setUsers",
 	"showError",
     "logError",
+    "announce",
+    "setText",
+    "toggleExamples",
 	"_"
 ]);
 
 var MessagesStore = Reflux.createStore({
 	init: function() {
 		this.listenToMany(Actions);
+	    this.anonMsgId = -1;
 		this.messages = [];
 	},
 	didConnect: function () {
@@ -26,7 +30,7 @@ var MessagesStore = Reflux.createStore({
 	    var $this = this;
 	    msgs.forEach(function(m) {
 	    	$this.messages.push({
-	    		id: m.id,
+	    		id: m.id || $this.anonMsgId--,
 	    		userId: m.fromUserId,
 	    		userName: m.fromName,
 	    		msg: m.message,
@@ -61,4 +65,26 @@ var UsersStore = Reflux.createStore({
 		this.users = users;
 		this.trigger(this.users);
 	}
+});
+
+$(document).bindHandlers({
+	announce: Actions.announce,
+	toggle: function () {
+		$(this).toggle();
+	},
+	sendCommand: function () {
+	    if (this.tagName != 'DIV') return;
+		Actions.setText($(this).html());
+	},
+	privateMsg: function () {
+		Actions.setText("@" + this.innerHTML + " ");
+	},
+	removeReceiver: function (name) {
+		delete $.ss.eventReceivers[name];
+	},
+	addReceiver: function (name) {
+		$.ss.eventReceivers[name] = window[name];
+	}
+}).on('customEvent', function (e, msg, msgEvent) {
+	Actions.addMessages([{ message: "[event " + e.type + " message: " + msg + "]", cls: "event" }]);
 });

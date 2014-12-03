@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     color: #444;
-    background: url(https://servicestack.net/img/slide/image01.jpg) no-repeat left center fixed;
+    background: url(/img/bg.jpg) no-repeat left center fixed;
     background-size: cover;
     -webkit-background-size: cover;
 }
