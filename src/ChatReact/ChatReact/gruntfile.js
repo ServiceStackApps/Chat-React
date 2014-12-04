@@ -17,6 +17,7 @@ module.exports = function (grunt) {
     var gulpif = require('gulp-if');
     var minifyCss = require('gulp-minify-css');
     var gulpReplace = require('gulp-replace');
+    var react = require('gulp-react');
     var webRoot = 'wwwroot/';
 
     //Deployment config
@@ -117,7 +118,7 @@ module.exports = function (grunt) {
                     '!./wwwroot/**/*.asax', //Don't delete asax
                     '!./wwwroot/**/*.config', //Don't delete config
                 ], { read: false })
-                        .pipe(rimraf());
+                    .pipe(rimraf());
             },
             'wwwroot-copy-partials': function () {
                 var partialsDest = webRoot + 'partials';
@@ -139,11 +140,15 @@ module.exports = function (grunt) {
             },
             'wwwroot-bundle': function () {
                 var assets = useref.assets();
-
-                return gulp.src('index.html')
+                var checkIfJsx = function (file) {
+                    return file.relative.indexOf('.jsx.js') !== -1;
+                };
+                return gulp.src('default.cshtml')
                     .pipe(assets)
-                    .pipe(gulpif('*.js', uglify()))
+                    .pipe(gulpif('*.jsx.js', react()))
+                    .pipe(gulpif(checkIfJsx, uglify()))
                     .pipe(gulpif('*.css', minifyCss()))
+
                     .pipe(assets.restore())
                     .pipe(useref())
                     .pipe(gulp.dest(webRoot));
