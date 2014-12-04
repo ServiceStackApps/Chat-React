@@ -4,6 +4,8 @@
 /// <reference path="~/node_modules/requirejs/require.js"/>
 
 'use strict';
+/*global require,module*/
+
 
 module.exports = function (grunt) {
     var path = require('path');
@@ -25,17 +27,12 @@ module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
-        karma: {
-            unit: {
-                configFile: 'tests/karma.conf.js',
-                singleRun: true,
-                browsers: ['PhantomJS'],
-                logLevel: 'ERROR'
-            }
+        exec: {
+            jest: 'jest'
         },
         msbuild: {
             release: {
-                src: ['TechStacks.csproj'],
+                src: ['ChatReact.csproj'],
                 options: {
                     projectConfiguration: 'Release',
                     targets: ['Clean', 'Rebuild'],
@@ -64,9 +61,6 @@ module.exports = function (grunt) {
                     },
                     dest: {
                         'package': path.resolve('./webdeploy.zip')
-                    },
-                    skip: {
-                        Directory: '\\App_Data'
                     }
                 }
             },
@@ -117,6 +111,7 @@ module.exports = function (grunt) {
                     '!./wwwroot/bin/**/*.*', //Don't delete dlls
                     '!./wwwroot/**/*.asax', //Don't delete asax
                     '!./wwwroot/**/*.config', //Don't delete config
+                    '!./wwwroot/appsettings.txt' //Don't delete deploy settings
                 ], { read: false })
                     .pipe(rimraf());
             },
@@ -130,10 +125,6 @@ module.exports = function (grunt) {
                 return gulp.src('./bower_components/bootstrap/dist/fonts/*.*')
                     .pipe(gulp.dest(webRoot + 'lib/fonts/'));
             },
-            'wwwroot-copy-chosen-resources': function () {
-                return gulp.src('./bower_components/chosen/*.png')
-                    .pipe(gulp.dest(webRoot + 'lib/css/'));
-            },
             'wwwroot-copy-images': function () {
                 return gulp.src('./img/*.*')
                     .pipe(gulp.dest(webRoot + 'img/'));
@@ -142,13 +133,12 @@ module.exports = function (grunt) {
                 var assets = useref.assets();
                 var checkIfJsx = function (file) {
                     return file.relative.indexOf('.jsx.js') !== -1;
-                };
+                }
                 return gulp.src('default.cshtml')
                     .pipe(assets)
                     .pipe(gulpif('*.jsx.js', react()))
                     .pipe(gulpif(checkIfJsx, uglify()))
                     .pipe(gulpif('*.css', minifyCss()))
-
                     .pipe(assets.restore())
                     .pipe(useref())
                     .pipe(gulp.dest(webRoot));
@@ -161,13 +151,13 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('ssvs-utils');
     grunt.loadNpmTasks('grunt-gulp');
     grunt.loadNpmTasks('grunt-msbuild');
     grunt.loadNpmTasks('grunt-nuget');
 
-    grunt.registerTask('01-run-tests', ['karma']);
+    grunt.registerTask('01-run-tests', ['exec:jest']);
     grunt.registerTask('02-package-server', [
         'nugetrestore',
         'msbuild:release',
@@ -181,15 +171,11 @@ module.exports = function (grunt) {
         'gulp:wwwroot-clean-client-assets',
         'gulp:wwwroot-copy-partials',
         'gulp:wwwroot-copy-fonts',
-        'gulp:wwwroot-copy-chosen-resources',
         'gulp:wwwroot-copy-images',
-        'gulp:wwwroot-copy-deploy-files',
         'gulp:wwwroot-bundle'
     ]);
 
     grunt.registerTask('build', ['02-package-server', '03-package-client']);
 
     grunt.registerTask('04-deploy-app', ['msdeploy:pack', 'msdeploy:push']);
-
-    grunt.registerTask('default', ['karma', 'build']);
 };
