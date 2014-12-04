@@ -110,7 +110,6 @@
     <Content Include="wwwroot_build\03-package-client.bat" />
     <Content Include="wwwroot_build\04-deploy-app.bat" />
     <Content Include="wwwroot_build\deploy\appsettings.txt" />
-    <Content Include="wwwroot_build\publish\config.json" />
     <Content Include="js\components\ChatApp.jsx" />
     <Content Include="js\components\ChatLog.jsx" />
     <Content Include="js\components\Footer.jsx" />
@@ -148,6 +147,7 @@
   <ItemGroup>
     <Folder Include="img\" />
     <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot_build\publish\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
