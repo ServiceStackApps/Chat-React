@@ -1,4 +1,5 @@
 ﻿using System;
+using ChatReact.ServiceModel.Types;
 using NUnit.Framework;
 using ServiceStack;
 using ServiceStack.Testing;
@@ -14,11 +15,12 @@ namespace ChatReact.Tests
 
         public UnitTests()
         {
-            appHost = new BasicAppHost(typeof(MyServices).Assembly)
+            appHost = new BasicAppHost(typeof(ServerEventsServices).Assembly)
             {
                 ConfigureContainer = container =>
                 {
                     //Add your IoC dependencies here
+                    container.RegisterAutoWiredAs<MemoryChatHistory, IChatHistory>();
                 }
             }
             .Init();
@@ -31,13 +33,18 @@ namespace ChatReact.Tests
         }
 
         [Test]
-        public void TestMethod1()
+        public void Can_store_and_retrieve_messages_in_ChatHistory()
         {
-            var service = appHost.Container.Resolve<MyServices>();
+            appHost.Container.Resolve<IChatHistory>().Log(
+                channel:"test", 
+                msg: new ChatMessage { Id = 1, DisplayName = "Test", Message = "Test Message" });
 
-            var response = (HelloResponse)service.Any(new Hello { Name = "World" });
+            var service = appHost.Container.Resolve<ServerEventsServices>();
 
-            Assert.That(response.Result, Is.EqualTo("Hello, World!"));
+            var response = (GetChatHistoryResponse)service.Any(new GetChatHistory { Channel = "test" });
+
+            Assert.That(response.Results.Count, Is.EqualTo(1));
+            Assert.That(response.Results[0].Message, Is.EqualTo("Test Message"));
         }
     }
 }
