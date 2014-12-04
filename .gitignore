@@ -184,3 +184,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 *.txt
 src/ChatReact/ChatReact/webdeploy.zip
+*.DotSettings
