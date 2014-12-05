@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var Footer = React.createClass({
     mixins:[ Reflux.listenToMany(Actions) ],
     getInitialState: function () {

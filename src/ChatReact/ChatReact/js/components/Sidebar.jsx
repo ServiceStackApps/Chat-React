@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var Sidebar = React.createClass({
     getInitialState: function() {
         return { hideExamples: false };

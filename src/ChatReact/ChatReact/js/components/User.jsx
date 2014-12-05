@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var User = React.createClass({
     render: function() {
         var user = this.props.user;

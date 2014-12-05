@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var ChatApp = React.createClass({
     mixins:[ 
         Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 

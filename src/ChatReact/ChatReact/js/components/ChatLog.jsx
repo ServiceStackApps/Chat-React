@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var ChatLog = React.createClass({
     renderItem: function(o, i, msgs) {
         var user = this.props.users.filter(function(user) { 

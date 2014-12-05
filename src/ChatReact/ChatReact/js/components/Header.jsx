@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var Header = React.createClass({
     getDefaultProps: function() {
         return { isAuthenticated: false };
