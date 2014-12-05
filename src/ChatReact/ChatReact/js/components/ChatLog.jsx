@@ -1,12 +1,9 @@
 var ChatLog = React.createClass({
     renderItem: function(o, i, msgs) {
         var user = this.props.users.filter(function(user) { 
-            return user.id == o.userId;
+            return user.userId == o.userId;
         })[0];
         
-        var clsId = o.userId ? "u_" + o.userId : "";
-        var clsUser = "user " + clsId;
-
         var clsHighlight = o.msg.indexOf(this.props.activeSub.displayName.replace(" ", "")) >= 0 
             ? "highlight " 
             : "";
@@ -20,10 +17,10 @@ var ChatLog = React.createClass({
         return (
             <div key={msgId} id={msgId} className={clsMsg}>
                 {o.userId && !repeatingUser 
-                    ? <b className={clsUser}>
+                    ? <b className="user">
                         <User user={ user || $.extend(o, { displayName: o.userName }) } />
                       </b> 
-                    : <b className={clsId}>&nbsp;</b>}
+                    : <b>&nbsp;</b>}
                 <i>{ $.ss.tfmt12(new Date()) }</i>
                 <div>{o.msg}</div>
             </div>

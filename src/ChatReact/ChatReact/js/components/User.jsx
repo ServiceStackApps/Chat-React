@@ -1,11 +1,9 @@
 var User = React.createClass({
     render: function() {
-        var user = this.props.user;
-        var cls = "user u_" + user.userId;
         return ( 
-            <div className={cls}><img src={user.profileUrl || "/img/no-profile64.png"}/>
-                <span data-id={user.userId} data-click="privateMsg">
-                    {user.displayName}
+            <div className="user"><img src={this.props.user.profileUrl || "/img/no-profile64.png"}/>
+                <span data-id={this.props.user.userId} data-click="privateMsg">
+                    {this.props.user.displayName}
                 </span>
             </div>
         );
