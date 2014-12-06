@@ -64,9 +64,6 @@ $(document).bindHandlers({
 		if (this.tagName != 'DIV') return;
 		Actions.setText($(this).html());
 	},
-	privateMsg: function () {
-		Actions.setText("@" + this.innerHTML + " ");
-	},
 	removeReceiver: function (name) {
 		delete $.ss.eventReceivers[name];
 	},
