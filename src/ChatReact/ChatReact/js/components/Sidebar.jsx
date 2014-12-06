@@ -3,7 +3,6 @@ var Sidebar = React.createClass({
         return { hideExamples: false };
     },
     toggleExamples: function(e) {
-        e.preventDefault();
         this.setState({ hideExamples: !this.state.hideExamples });
     },  
     render: function() {

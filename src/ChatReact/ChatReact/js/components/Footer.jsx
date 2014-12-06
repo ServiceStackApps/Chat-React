@@ -21,15 +21,16 @@ var Footer = React.createClass({
             this.state.msgHistory.push(msg);
         }
 
-        if (msg[0] == "@") {
+        if (msg[0] == '@') {
             parts = $.ss.splitOnFirst(msg, " ");
             var toName = parts[0].substring(1);
             if (toName == "me") {
                 to = activeSub.userId;
             } else {
-                var matches = $.grep($("#users .user span"),
-                    function (x) { return x.innerHTML.replace(" ", "").toLowerCase() === toName.toLowerCase(); });
-                to = matches.length > 0 ? matches[0].getAttribute("data-id") : null;
+                var toUser = this.props.users.filter(function(user) { 
+                    return user.displayName === toName.toLowerCase();
+                })[0];
+                to = toUser ? toUser.userId : null;
             }
             msg = parts[1];
         }
@@ -61,6 +62,9 @@ var Footer = React.createClass({
         }
 
         this.setState({ value: '' });
+    },
+    userSelected: function(user) {
+        this.setText("@" + user.displayName + " ");
     },
     setText: function(txt) {
         var txtMsg = this.refs.txtMsg.getDOMNode();
