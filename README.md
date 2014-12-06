@@ -185,11 +185,11 @@ var HelloMessage = React.createClass({displayName: 'HelloMessage',
 
 > React's convention is to use **lowercase** names to reference HTML elements and **PascalCase** names to reference React components, which affects how the JSX is transpiled.
 
-From this we can see that since JSX just compiles to a nested graph of JS function calls. Knowing this we can see how to write components in plain JS directly,  without JSX. Whilst this is strictly true, JSX is still preferred because it has a familiar HTML-like syntax whose attributes and elements provide a more concise and readable form than the equivalent nested JavaScript function calls and object literals.
+From this we can see that JSX just compiles to a nested graph of JS function calls. Knowing this we can see how to write components in plain JavaScript directly, without JSX. Whilst this is indeed possible, JSX is still preferred because it has a familiar HTML-like syntax whose attributes and elements provide a more concise and readable form than the equivalent nested JavaScript function calls and object literals.
 
 ### Virtual DOM vs HTML
 
-Its close appearance to HTML may mistakenly give the impression that it also behaves like HTML, but as its instead a representation of JavaScript, as a result does have some subtle differences to be aware of.
+Its close appearance to HTML may mistakenly give the impression that it also behaves like HTML, but as its instead a representation of JavaScript, it does have some subtle differences to be aware of.
 
 The modified `HelloMessage` component below illustrates some of the key differences:
 
