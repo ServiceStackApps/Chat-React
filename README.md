@@ -3,7 +3,9 @@ React Chat
 
 is a port of [ServiceStack Chat](https://github.com/ServiceStackApps/Chat) Server Events demo into React.js Application using [ServiceStackVS](https://github.com/ServiceStack/ServiceStackVS) new ReactJS Single Page App VS.NET Template which enables a modern approach for developing rich React.js Apps in .NET.
 
-![React Chat](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/chat-react.png)
+[![React Chat](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/chat-react.png)](http://react-chat.servicestack.net)
+
+> Live Demo: http://react-chat.servicestack.net
 
 ## Modern Single Page Apps with .NET 
 
