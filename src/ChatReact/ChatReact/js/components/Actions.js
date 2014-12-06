@@ -7,6 +7,7 @@ var Actions = Reflux.createActions([
 	"showError",
     "logError",
     "announce",
+    "userSelected",
     "setText",
     "toggleExamples"
 ]);
