@@ -47,13 +47,13 @@ var ChatApp = React.createClass({
                         Actions.addMessages(r.results);
                     });
 
-                    $this.refreshUsers();
+                    Actions.refreshUsers();
                 },
                 onReconnect: function () {
                     console.log("onReconnect", { newEventSource: this, errorArgs: arguments });
                 },
-                onJoin: this.refreshUsers,
-                onLeave: this.refreshUsers,
+                onJoin: Actions.refreshUsers,
+                onLeave: Actions.refreshUsers,
                 chat: function (m, e) {
                     Actions.addMessages([m]);
                 }
@@ -64,17 +64,6 @@ var ChatApp = React.createClass({
                     off: this.tvOff
                 }
             }
-        });
-    },
-    refreshUsers: function() {
-        $.getJSON("/event-subscribers?channel=" + this.props.channel, function (users) {
-            usersMap = {};
-            $.map(users, function (user) { 
-                usersMap[user.userId] = user; 
-            });
-            Actions.setUsers($.map(usersMap, function(user) { 
-                return user; 
-            }));
         });
     },
     onMessagesUpdate: function(messages) {

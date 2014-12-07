@@ -3,7 +3,7 @@ var Actions = Reflux.createActions([
 	"addMessages",
 	"removeAllMessages",
 	"recordMessage",
-    "setUsers",
+    "refreshUsers",
 	"showError",
     "logError",
     "announce",
@@ -50,9 +50,16 @@ var UsersStore = Reflux.createStore({
 		this.listenToMany(Actions);
 		this.users = [];
 	},
-	setUsers: function (users) {
-		this.users = users;
-		this.trigger(this.users);
+	refreshUsers: function () {
+	    var $this = this;
+	    $.getJSON(AppData.channelSubscribersUrl, function (users) {
+	        var usersMap = {};
+	        $.map(users, function (user) {
+	            usersMap[user.userId] = user;
+	        });
+	        $this.users = $.map(usersMap, function (user) { return user; });
+	        $this.trigger($this.users);
+	    });
 	}
 });
 

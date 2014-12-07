@@ -32,16 +32,17 @@
     <script type="text/javascript">
         var AppData = {
             channel: "@channel",
-            isAuthenticated: @IsAuthenticated.ToString().ToLower()
+            isAuthenticated: @IsAuthenticated.ToString().ToLower(),
+            channelSubscribersUrl: "/event-subscribers?channel=@channel"
         };
     </script>
 </head>
-    <body>
+    <body> 
         
         <div id="app"></div>
 
         <!-- build:js js/app.jsx.js -->
-        <script type="text/jsx" src="js/components/Actions.js"></script>
+        <script type="text/javascript" src="js/components/Actions.js"></script>
         <script type="text/jsx" src="js/components/User.jsx"></script>
         <script type="text/jsx" src="js/components/Header.jsx"></script>
         <script type="text/jsx" src="js/components/Sidebar.jsx"></script>
