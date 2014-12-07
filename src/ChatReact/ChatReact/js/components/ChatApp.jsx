@@ -54,8 +54,8 @@ var ChatApp = React.createClass({
                 },
                 onJoin: Actions.refreshUsers,
                 onLeave: Actions.refreshUsers,
-                chat: function (m, e) {
-                    Actions.addMessages([m]);
+                chat: function (msg, e) {
+                    Actions.addMessages([msg]);
                 }
             },
             receivers: {
