@@ -19,12 +19,10 @@ var MessagesStore = Reflux.createStore({
 		this.messages = [];
 	},
 	didConnect: function () {
-		this.messages.push({ msg: "CONNECTED!", cls: "open" });
-		this.trigger(this.messages);
+		this.addMessages([{ message: "CONNECTED!", cls: "open" }]);
 	},
 	logError: function () {
-		this.messages.push({ msg: "ERROR!", cls: "error" });
-		this.trigger(this.messages);
+	    this.addMessages([{ message: "ERROR!", cls: "error" }]);
 	},
 	addMessages: function (msgs) {
 		var $this = this;

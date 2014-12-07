@@ -1,7 +1,9 @@
 var ChatApp = React.createClass({
     mixins:[ 
         Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 
-        Reflux.listenTo(UsersStore,"onUsersUpdate")
+        Reflux.listenTo(UsersStore,"onUsersUpdate"),
+        Reflux.listenTo(Actions.announce,"announce"),
+        Reflux.listenTo(Actions.showError,"showError")
     ],
     templates: {
         youtube: function(id) {
@@ -28,8 +30,6 @@ var ChatApp = React.createClass({
     },  
     componentDidMount: function() {
         var $this = this;
-
-        this.listenToMany(Actions);
 
         this.source = new EventSource('/event-stream?channel=' + this.props.channel + '&t=' + new Date().getTime()); //disable cache
         this.source.onerror = function (e) {

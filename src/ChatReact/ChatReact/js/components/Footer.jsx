@@ -1,5 +1,8 @@
 var Footer = React.createClass({
-    mixins:[ Reflux.listenToMany(Actions) ],
+    mixins:[ 
+        Reflux.listenTo(Actions.userSelected,"userSelected"), 
+        Reflux.listenTo(Actions.setText,"setText")
+    ],
     getInitialState: function () {
         return {
             value:'',
