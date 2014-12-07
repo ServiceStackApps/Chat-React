@@ -241,13 +241,13 @@ This increase in code is effectively the price paid for modularity. The original
 
 There's also limited potential for re-use, i.e. you couldn't realistically copy a code fragment in isolation and re-use it as-is inside another App. Whilst this is manageable (and requires less effort) in small code bases, it doesn't scale well with a larger and constantly evolving code-base.
 
-### React Components
+## React Components
 
 The first step into creating a React app is deciding how to structure the app, as components in React are really lightweight, the number of components shouldn't affect the granularity of how to partition your app as you can happily opt for the most logical separation that suits your needs.
 
 For Chat, this was easy as the app was already visually separated into distinct components, which is what dictated how it was restructured into different components:
 
-![Chat Components](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/chat-components.png)
+![Chat Components](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/chat-react/chat-components.png)
 
 - [Header.jsx](https://github.com/ServiceStackApps/Chat-React/blob/master/src/ChatReact/ChatReact/js/components/Header.jsx)
 - [ChatLog.jsx](https://github.com/ServiceStackApps/Chat-React/blob/master/src/ChatReact/ChatReact/js/components/ChatLog.jsx)
@@ -275,9 +275,42 @@ var Footer = React.createClass({
 
 React supports this gradual dev workflow quite nicely where the design of the App is instantly viewable after extracting the HTML markup into its distinct components. 
 
-### State and Communications between Components
+## State and Communications between Components
 
-The important concept to keep in mind when reasoning about React's design is that components are a projection for a given State. To enforce this data flows unidirectionally down from the top-most Component (Owner) to its children via properties. In addition to properties each Component can also maintain its own state and together is what's used to render the UI, dynamically on each state change.
+The important concept to keep in mind when reasoning about React's design is that components are a projection for a given State. To enforce this, data flows unidirectionally down typically from the top-most Component (Owner) to its children via properties. In addition, Components can also maintain its own state which are used together with properties to dynamically render its UI on every state change.
+
+We can visualize how data flows throughout you app by tracking the flow of **users** through to the different React Chat components. 
+
+The list of active users for the entire App is originally sourced from the `users` collection that's kept in the  state. of top-level ChatApp Component. It's then passed to the other `Sidebar` and `ChatLog` child components that also require access to the list of users via its properties:
+
+```js
+var ChatApp = React.createClass({
+    //...
+    render: function() {
+        return (
+            <div>
+                ...
+                <Sidebar users={this.state.users} />
+                <ChatLog ref="chatLog"
+                         messages={this.state.messages} 
+                         users={this.state.users} 
+                         activeSub={this.state.activeSub} />
+                ...
+            </div>
+        );
+    }
+});
+```
+
+### Accessing State and Properties
+
+The child components can then access all properties assigned to it via its `this.props` collection. The  `Sidebar` uses this to generate a dynamic list of child `User` components for each active user. 
+
+In addition to its properties, Sidebar also maintains its own `hideExamples` state (invisible to other Components) which it uses to determine whether to show the **Example Commands** or not, as well as the appropriate **show** or **hide** action label to display.
+
+### Modify State with Callbacks
+
+We can also see how children are able to modify its parent state via a `onClick={this.toggleExamples}` callback which directs the Sidebar component to change the `hideExamples` state. The `this.setState()` API is what Components use to modify its state and re-render its UI.
 
 ```js
 var Sidebar = React.createClass({
@@ -285,7 +318,6 @@ var Sidebar = React.createClass({
         return { hideExamples: false };
     },
     toggleExamples: function(e) {
-        e.preventDefault();
         this.setState({ hideExamples: !this.state.hideExamples });
     },  
     render: function() {
@@ -300,7 +332,7 @@ var Sidebar = React.createClass({
                 </div>
                 <div id="examples" style={{ height: height }}>
                     <span onClick={this.toggleExamples}>{label}</span>
-                    <span data-click="sendCommand">...</span>
+                    ...
                 </div>
             </div>
         );
@@ -308,16 +340,22 @@ var Sidebar = React.createClass({
 });
 ```
 
+Finally the user data makes its way down to the `User` Component, this time only binded to a single user object which it uses to render the users avatar and name. 
+
+### Decoupled and Reusable Components
+
+What's telling about Components is that they don't have a dependency on its parent Component as it's able to render everything it needs by just looking at its assigned properties and localized state. This decoupling is what allows Components to be re-usable and much easier to reason-about as its behavior can be determined in isolation, unaffected by any other external State or Component.
+
 ```js
 var User = React.createClass({
-    privateMsg: function(e) {
-        Actions.setText("@" + e.target.innerHTML + " ");
+    handleClick: function() {
+        Actions.userSelected(this.props.user);
     },
     render: function() {
         return ( 
             <div className="user">
                 <img src={this.props.user.profileUrl || "/img/no-profile64.png"}/>
-                <span onClick={this.privateMsg}>
+                <span onClick={this.handleClick}>
                     {this.props.user.displayName}
                 </span>
             </div>
@@ -325,3 +363,177 @@ var User = React.createClass({
     }
 });
 ```
+
+React's strict one-way data flow does present a challenge with how a child component can communicate with the rest of the application and vice versa. To tackle this Facebook has released a [guidance architecture called flux](http://facebook.github.io/flux/docs/overview.html) which introduces the concept of a central Dispatcher, Actions and Stores. 
+
+### Listening to Actions
+
+In the `User` component we start to see a glimpse of this with the `Actions.userSelected` that's triggered whenever a users name is clicked. Effectively this is just raising an event visible to the rest of the application which any component can listen to and react upon. 
+
+In this case the `Footer` component is interested whenever a user is clicked so it can pre-populate the Chat TextBox with the users name, ready to send a private message. For this we use [Reflux](https://github.com/spoike/refluxjs)'s convenience `listenTo` mixin to listen to a specific action:
+
+```js
+var Footer = React.createClass({
+    mixins:[ 
+        Reflux.listenTo(Actions.userSelected,"userSelected"), 
+        Reflux.listenTo(Actions.setText,"setText")
+    ],
+    userSelected: function(user) {
+        this.setText("@" + user.displayName + " ");
+    }
+    ...
+});
+```
+
+This can be made even shorter with the `Reflux.listenToMany` mixin which lets you listen to ALL actions for which your component provides implementations for, e.g:
+
+```js
+var Footer = React.createClass({
+    mixins:[ Reflux.listenToMany(Actions) ],
+    userSelected: function(user) {
+        this.setText("@" + user.displayName + " ");
+    }
+    ...
+});
+```
+
+> Whilst this does save boilerplate, it's less explicit than declaring which specific actions your Component is listening to, and has the potential for accidental naming clashes in larger apps.
+
+### [Flux](http://facebook.github.io/flux/docs/overview.html) vs [Reflux](https://github.com/spoike/refluxjs)
+
+Earlier we introduced [Flux](http://facebook.github.io/flux/docs/overview.html) - Facebook's guidance for designing large React apps by adopting a unidirectional data flow architecture in favor over a traditional MVC pattern. Whilst Flux is primarily meant to serve as an architectural pattern, Facebook also provide implementations for Flux concepts in the [Flux repo](https://github.com/facebook/flux) and reference [TodoMVC](https://github.com/facebook/flux/tree/master/examples/flux-todomvc) application. 
+
+Facebook also provides the diagram below to help illustrate the structure and data flow of a Flux application and how its different concepts fit together:
+
+![Flux Architecture Diagram](https://raw.githubusercontent.com/facebook/flux/master/docs/img/flux-diagram-white-background.png). 
+
+In contrast to React's small and beautifully simple, purpose-specific API, Flux introduces a lot of concepts, boilerplate, moving pieces and indirection for relatively little value. Whilst the primary [Actions](http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html) and Stores concepts in Flux are sound, the implementation in [Flux TodoMVC](https://github.com/facebook/flux/tree/master/examples/flux-todomvc) wont be winning any awards for simplicity, code-size, clarity or readability. 
+
+Luckily Flux is an optional external library and React has a thriving community who are able to step in with more elegant solutions, one of the standouts in this area is [Reflux](https://github.com/spoike/refluxjs), a simpler re-imagination of flux architecture that is streamlined down to just:
+
+![Flux Architecture Diagram](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/livedemos/chat-react/reflux-diagram.png). 
+
+Simply, **Components** listen to **Store** events to get notified when their state has changed and can invoke **Actions** which **Stores** (and anything else) can listen and react to. 
+
+Reflux also includes a number of convenience API's to reduce the boilerplate required when hooking the different pieces together. More info about the inspiration, benefits and differences of Reflux vs Flux can be found in the useful posts below:
+
+ - [React.js architecture - Flux VS Reflux](http://blog.krawaller.se/posts/react-js-architecture-flux-vs-reflux/)
+ - [http://blog.krawaller.se/posts/reflux-refinement/](Reflux refinement)
+ - [http://spoike.ghost.io/deconstructing-reactjss-flux/](Deconstructing ReactJS's Flux)
+
+## Creating Actions
+
+Creating actions are one of the areas much improved with Reflux convenience API's which is able to create multiple actions in a single function call, making it trivial to define all the [Actions](https://github.com/ServiceStackApps/Chat-React/blob/master/src/ChatReact/ChatReact/js/components/Actions.js) used throughout React Chat with:
+
+```js
+var Actions = Reflux.createActions([
+    "didConnect",
+    "addMessages",
+    "removeAllMessages",
+    "recordMessage",
+    "refreshUsers",
+    "showError",
+    "logError",
+    "announce",
+    "userSelected",
+    "setText"
+]);
+```
+
+> Depending on number of actions in your App, you may instead want to group actions across multiple vars.
+
+Once defined, actions can be triggered like a normal function call, e.g:
+
+```js
+Actions.userSelected(user);
+```
+
+Which as a result can be invoked from anywhere (i.e. not just limited to Components), e.g. React Chat invokes them in [Server Event Callbacks](https://github.com/ServiceStack/ServiceStack/wiki/JavaScript-Server-Events-Client) to trigger Store updates:
+
+```js
+$(this.source).handleServerEvents({
+    handlers: {
+        onJoin: Actions.refreshUsers,
+        onLeave: Actions.refreshUsers,
+        chat: function (msg, e) {
+            Actions.addMessages([msg]);
+        }
+    },
+    ...
+});
+```
+
+
+## Stores
+
+Stores are a Flux concept used to maintain application state, I like to think of them as Data Controllers that own and are responsible for keeping models updated who notify listeners whenever they're changed.
+
+You would typically have a different Store to manage different model and collection types, e.g. React Chat has a `UsersStore` to maintain the list of active users which gets updated when anyone calls `Actions.refreshUsers`, which will then notify its listeners whenever it gets an updated list of users:
+
+```js
+var UsersStore = Reflux.createStore({
+    init: function () {
+        this.listenTo(Actions.refreshUsers, this.refreshUsers);
+        this.users = [];
+    },
+    refreshUsers: function () {
+        var $this = this;
+        $.getJSON(AppData.channelSubscribersUrl, function (users) {
+            var usersMap = {};
+            $.map(users, function (user) {
+                usersMap[user.userId] = user;
+            });
+            $this.users = $.map(usersMap, function (user) { return user; });
+            $this.trigger($this.users);
+        });
+    }
+});
+```
+
+As `UsersStore` only needs to listen to a single action it prefers to use the explicit `this.listenTo(action, callback)` API. Although for Stores like `MessagesStore` that needs to listen to multiple actions, they can make use of the convenient `this.listenToMany(actions)` API to reduce the boilerplate for registering multiple listeners, e.g:
+
+```js
+var MessagesStore = Reflux.createStore({
+    init: function () {
+        this.listenToMany(Actions);
+        this.messages = [];
+    },
+    ...
+});
+```
+
+### Listening to Stores
+
+Listening to `Store` events is similar to listening to `Actions` which can be registered using the `Reflux.listenTo()` convenience mixin to define the method to call whenever a Store is updated. 
+
+`ChatApp` does this to listen for updates from the `MessagesStore` and `UsersStore`, it's also the only Component that listens directly to the `Store` events which it uses to updates its local state, the updated messages and users then flow down to child components via normal properties:
+
+```js
+var ChatApp = React.createClass({
+    mixins:[ 
+        Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 
+        Reflux.listenTo(UsersStore,"onUsersUpdate")
+    ],
+    onMessagesUpdate: function(messages) {
+        this.setState({ messages: messages });
+    },
+    onUsersUpdate: function(users) {
+        this.setState({ users: users });
+    },
+    render: function() {
+        var showTv = this.state.tvUrl ? 'block' : 'none';
+        return (
+            <div>
+                ...
+                <ChatLog messages={this.state.messages} 
+                         users={this.state.users} />
+                ...
+                <Footer users={this.state.users} />
+            </div>
+        );
+    }
+    ...
+});
+```
+
+The [Flux Application Architecture](http://facebook.github.io/flux/docs/overview.html) refers to these Components that sync with Stores and passes its data down to its descendants as  **Controller Views** which is a recommended practice in order to be able to reduce dependencies and keep Child Components as functionally pure as possible.
