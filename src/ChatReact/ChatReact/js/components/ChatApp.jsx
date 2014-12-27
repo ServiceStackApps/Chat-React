@@ -1,5 +1,6 @@
 var ChatApp = React.createClass({
     mixins:[ 
+        Reflux.listenTo(ChannelStore,"onChannelChanged"), 
         Reflux.listenTo(MessagesStore,"onMessagesUpdate"), 
         Reflux.listenTo(UsersStore,"onUsersUpdate"),
         Reflux.listenTo(Actions.announce,"announce"),
@@ -22,16 +23,20 @@ var ChatApp = React.createClass({
         return {
             isAuthenticated: this.props.isAuthenticated, 
             tvUrl: null,
+            channels: null,
             messages: [], 
             users: [],
             announce: '',
             activeSub: null
         };
     },  
+    componentWillMount: function() {
+        Actions.channelSelected(this.props.channel);
+    },
     componentDidMount: function() {
         var $this = this;
 
-        this.source = new EventSource('/event-stream?channel=' + this.props.channel + '&t=' + new Date().getTime()); //disable cache
+        this.source = new EventSource(this.props.eventStreamUrl); //disable cache
         this.source.onerror = function (e) {
             Actions.logError(e);
         };
@@ -43,7 +48,7 @@ var ChatApp = React.createClass({
 
                     Actions.didConnect();
 
-                    $.getJSON("/channels/" + $this.props.channel + "/history", function (r) {
+                    $.getJSON($this.props.chatHistoryUrl, function (r) {
                         Actions.addMessages(r.results);
                     });
 
@@ -55,6 +60,7 @@ var ChatApp = React.createClass({
                 onJoin: Actions.refreshUsers,
                 onLeave: Actions.refreshUsers,
                 chat: function (msg, e) {
+                    msg.channel = e.channel;
                     Actions.addMessages([msg]);
                 }
             },
@@ -69,6 +75,7 @@ var ChatApp = React.createClass({
     onMessagesUpdate: function(messages) {
         var $this = this;
         this.setState({ messages: messages }, function(){
+            if (!$this.refs.chatLog) return;
             $($this.refs.chatLog.refs.log.getDOMNode()).scrollTop(1E10);
         });
     },
@@ -106,11 +113,18 @@ var ChatApp = React.createClass({
     tvOff: function() {
         this.setState({ tvUrl: null });
     },
+    onChannelChanged: function (channels) {
+        var $this = this;
+        this.setState({ channels: channels }, function(){
+            $this.refs.footer.refs.txtMsg.getDOMNode().focus();
+        });
+    },
     render: function() {
+        if (this.state.channels == null) return null;
         var showTv = this.state.tvUrl ? 'block' : 'none';
         return (
             <div>
-                <Header channel={this.props.channel} 
+                <Header channels={this.state.channels} 
                         isAuthenticated={this.props.isAuthenticated} 
                         activeSub={this.state.activeSub} />
 
@@ -123,7 +137,7 @@ var ChatApp = React.createClass({
                          users={this.state.users} 
                          activeSub={this.state.activeSub} />
 
-                <Footer channel={this.props.channel} 
+                <Footer ref="footer" channel={this.state.channels.selected}  
                         users={this.state.users} 
                         activeSub={this.state.activeSub} />
             </div>
@@ -132,7 +146,9 @@ var ChatApp = React.createClass({
 });
 
 React.render(
-    <ChatApp channel={AppData.channel} isAuthenticated={AppData.isAuthenticated} />,
+    <ChatApp channel={AppData.selectedChannel}
+             isAuthenticated={AppData.isAuthenticated} 
+             eventStreamUrl={AppData.eventStreamUrl}
+             chatHistoryUrl={AppData.chatHistoryUrl} />,
     document.getElementById('app')
 );
-

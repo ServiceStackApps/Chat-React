@@ -1,7 +1,7 @@
 ﻿@inherits ServiceStack.Razor.ViewPage
 @{
     ViewBag.Title = "Server Sent Events Chat";
-    var channel = Request.QueryString["channel"] ?? "home";
+    var channels = Request.QueryString["channels"] ?? "home";
 }
 <!DOCTYPE html>
 <html>
@@ -30,10 +30,14 @@
     <link href="/img/favicon.png" rel="icon">
     
     <script type="text/javascript">
+        var channels = "@channels".split(',');
         var AppData = {
-            channel: "@channel",
+            channels: channels,
+            selectedChannel: channels[channels.length - 1],
             isAuthenticated: @IsAuthenticated.ToString().ToLower(),
-            channelSubscribersUrl: "/event-subscribers?channel=@channel"
+            eventStreamUrl: '/event-stream?channels=@channels&t=' + new Date().getTime(),
+            channelSubscribersUrl: '/event-subscribers?channels=@channels',
+            chatHistoryUrl: '/chathistory?channels=@channels'
         };
     </script>
 </head>

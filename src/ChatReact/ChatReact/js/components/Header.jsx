@@ -3,11 +3,15 @@ var Header = React.createClass({
         return { isAuthenticated: false };
     },
     openChannel: function(){
-        var chan = prompt('Open another Channel in new Window:','ChannelName'); 
+        var chan = prompt('Join another Channel?','ChannelName'); 
         if (chan) 
-            window.open('?channel='+chan.replace(/\s+/g,''));
+            location.href = '?channels=' + this.props.channels.items.join(',') + ',' + chan.replace(/\s+/g,'');
+    },
+    selectChannel: function(e){
+        Actions.channelSelected(e.target.getAttribute('data-channel'));
     },
     render: function() {
+        var $this = this;
         return (
             <div id="top">
                 <a href="https://github.com/ServiceStackApps/LiveDemos">
@@ -32,11 +36,19 @@ var Header = React.createClass({
                           </span>}
                 </div>
                 <ul id="channels" style={{margin: '0 0 0 30px'}}>
-                    <li>
-                        {this.props.channel}
-                    </li>
+                    {this.props.channels.items.map(function(channel) {
+                        return (
+                             <li className={$this.props.channels.selected == channel ? 'selected' : ''}
+                                 data-channel={channel}
+                                 onClick={$this.selectChannel}>
+                                {channel}
+                             </li>
+                        );
+                    })}
                     <li style={{background: 'none', padding: '0 0 0 5px'}}>
                         <button onClick={this.openChannel}>+</button>
+                    </li>
+                    <li style={{background: 'none', padding: 0}}>
                         <span style={{fontSize: 13, color: '#ccc', paddingLeft: 10}} onClick={Actions.removeAllMessages}>clear</span>
                     </li>
                 </ul>

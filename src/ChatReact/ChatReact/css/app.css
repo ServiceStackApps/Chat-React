@@ -54,6 +54,14 @@ li {
     background: #fff;
     font-size: 18px;
     cursor: pointer;
+    margin: 0 5px 0 0;
+    opacity: .5;
+}
+#channels li.selected {
+    opacity: .9;
+}
+li:hover {
+    opacity: .8;
 }
 #announce {
     z-index: 3;
