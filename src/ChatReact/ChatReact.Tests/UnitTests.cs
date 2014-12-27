@@ -41,7 +41,7 @@ namespace ChatReact.Tests
 
             var service = appHost.Container.Resolve<ServerEventsServices>();
 
-            var response = (GetChatHistoryResponse)service.Any(new GetChatHistory { Channel = "test" });
+            var response = (GetChatHistoryResponse)service.Any(new GetChatHistory { Channels = new[] { "test" } });
 
             Assert.That(response.Results.Count, Is.EqualTo(1));
             Assert.That(response.Results[0].Message, Is.EqualTo("Test Message"));

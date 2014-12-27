@@ -3,6 +3,7 @@
     public class ChatMessage
     {
         public long Id { get; set; }
+        public string Channel { get; set; }
         public string FromUserId { get; set; }
         public string FromName { get; set; }
         public string DisplayName { get; set; }

@@ -4,10 +4,10 @@ using ServiceStack;
 
 namespace ChatReact.ServiceModel
 {
-    [Route("/channels/{Channel}/history")]
+    [Route("/chathistory")]
     public class GetChatHistory : IReturn<GetChatHistoryResponse>
     {
-        public string Channel { get; set; }
+        public string[] Channels { get; set; }
         public long? AfterId { get; set; }
         public int? Take { get; set; }
     }

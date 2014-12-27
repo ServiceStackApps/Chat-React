@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using ChatReact.ServiceModel;
 using ChatReact.ServiceModel.Types;
 using ServiceStack;
@@ -46,12 +47,13 @@ namespace ChatReact.ServiceInterface
 
             // Create a DTO ChatMessage to hold all required info about this message
             var msg = new ChatMessage
-                {
-                    Id = ChatHistory.GetNextMessageId(channel),
-                    FromUserId = sub.UserId,
-                    FromName = sub.DisplayName,
-                    Message = request.Message,
-                };
+            {
+                Id = ChatHistory.GetNextMessageId(channel),
+                Channel = request.Channel,
+                FromUserId = sub.UserId,
+                FromName = sub.DisplayName,
+                Message = request.Message,
+            };
 
             // Check to see if this is a private message to a specific user
             if (request.ToUserId != null)
@@ -85,9 +87,15 @@ namespace ChatReact.ServiceInterface
 
         public object Any(GetChatHistory request)
         {
+            var msgs = request.Channels.Map(x =>
+                ChatHistory.GetRecentChatHistory(x, request.AfterId, request.Take))
+                .SelectMany(x => x)
+                .OrderBy(x => x.Id)
+                .ToList();
+
             return new GetChatHistoryResponse
             {
-                Results = ChatHistory.GetRecentChatHistory(request.Channel, request.AfterId, request.Take)
+                Results = msgs
             };
         }
     }
