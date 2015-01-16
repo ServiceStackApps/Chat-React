@@ -63,7 +63,8 @@ var MessagesStore = Reflux.createStore({
                     userId: m.fromUserId,
                     userName: m.fromName,
                     msg: m.message,
-                    cls: m.cls || (m.private ? ' private' : '')
+                    cls: m.cls || (m.private ? ' private' : ''),
+                    time: new Date()
                 });
             });
 

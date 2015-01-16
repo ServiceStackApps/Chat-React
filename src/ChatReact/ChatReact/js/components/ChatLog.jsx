@@ -21,7 +21,7 @@ var ChatLog = React.createClass({
                         <User user={ user || $.extend(o, { displayName: o.userName }) } />
                       </b> 
                     : <b>&nbsp;</b>}
-                <i>{ $.ss.tfmt12(new Date()) }</i>
+                <i>{ $.ss.tfmt12(o.time || new Date()) }</i>
                 <div>{o.msg}</div>
             </div>
         );
