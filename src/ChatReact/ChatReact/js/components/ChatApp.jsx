@@ -30,12 +30,10 @@ var ChatApp = React.createClass({
             activeSub: null
         };
     },  
-    componentWillMount: function() {
-        Actions.channelSelected(this.props.channel);
-    },
     componentDidMount: function() {
         var $this = this;
 
+        Actions.channelSelected(this.props.channel);
         this.source = new EventSource(this.props.eventStreamUrl); //disable cache
         this.source.onerror = function (e) {
             Actions.logError(e);

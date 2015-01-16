@@ -102,6 +102,13 @@
     <Content Include="css\app.css" />
     <Content Include="gruntfile.js" />
     <Content Include="default.cshtml" />
+    <Content Include="img\bg.jpg" />
+    <Content Include="img\facebook_normal.png" />
+    <Content Include="img\favicon.png" />
+    <Content Include="img\github_normal.png" />
+    <Content Include="img\no-profile64.png" />
+    <Content Include="img\react-logo.png" />
+    <Content Include="img\twitter_normal.png" />
     <Content Include="js\components\Actions.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="tests\unit\hello-test.js" />
@@ -155,7 +162,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="img\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot_build\publish\" />
   </ItemGroup>
