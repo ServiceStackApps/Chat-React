@@ -1,3 +1,17 @@
+# Update
+
+This version of React Chat was built using our Legacy React App Template based on React 0.12, ES5 and the now 
+[deprecated JSXTransformer](https://facebook.github.io/react/blog/2015/06/12/deprecating-jstransform-and-react-tools.html).
+This legacy template is still available in our archived
+[ServiceStackVS.Archive.vsix](https://github.com/ServiceStack/ServiceStackVS/raw/master/dist/ServiceStackVS.Archive.vsix)
+VS.NET Extension.
+
+A newer version of 
+[React Chat](https://github.com/ServiceStackApps/ReactChat) based on our recommended and more modern **React App** 
+VS.NET Template using TypeScript, React v15, JSPM and Redux is available at: https://github.com/ServiceStackApps/ReactChat
+
+---
+
 React Chat
 ==========
 
