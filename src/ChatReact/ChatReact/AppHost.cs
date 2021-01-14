@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using ChatReact.ServiceInterface;
 using Funq;
 using ServiceStack;
@@ -25,9 +26,7 @@ namespace ChatReact
 
         public override void Configure(Container container)
         {
-            JsConfig.EmitCamelCaseNames = true;
-
-            Plugins.Add(new RazorFormat());
+            Plugins.Add(new SharpPagesFeature());
             Plugins.Add(new ServerEventsFeature());
 
             MimeTypes.ExtensionMimeTypes["jsv"] = "text/jsv";
@@ -36,6 +35,7 @@ namespace ChatReact
                 DebugMode = AppSettings.Get("DebugMode", false),
                 DefaultContentType = MimeTypes.Json,
                 AllowFileExtensions = { "jsx" },
+                UseCamelCase = true,
             });
 
             this.CustomErrorHttpHandlers.Remove(HttpStatusCode.Forbidden);
